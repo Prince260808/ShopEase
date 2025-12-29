@@ -1,15 +1,31 @@
-import { createContext, useState } from "react";
-export const CartContext = createContext();
-export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState([]);
+import { createContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLocalStorage } from "../../useLocalStorage";
 
-  // Add product to cart
+export const CartContext = createContext();
+
+export const CartProvider = ({ children }) => {
+  const [cart, setCart] = useLocalStorage("cart", []);
+  const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // ✅ ADD TO CART (with login check)
   const addToCart = (product) => {
+    // 🔴 If NOT logged in → redirect
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
     const exist = cart.find((item) => item.id === product.id);
+
     if (exist) {
       setCart(
         cart.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          item.id === product.id
+            ? { ...item, qty: item.qty + 1 }
+            : item
         )
       );
     } else {
@@ -17,29 +33,41 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Remove product from cart
+  // Remove product
   const removeFromCart = (id) => {
     setCart(cart.filter((item) => item.id !== id));
   };
 
-  // Increment Product
+  // Increment qty
   const incrementQty = (id) => {
     setCart(
-      cart.map(item =>
+      cart.map((item) =>
         item.id === id ? { ...item, qty: item.qty + 1 } : item
       )
     );
   };
 
-  // Decrement Product
+  // Decrement qty (safe)
   const decrementQty = (id) => {
-    setCart(cart.map(item => item.id === id ? {...item, qty: item.qty - 1} : item));
+    setCart(
+      cart
+        .map((item) =>
+          item.id === id ? { ...item, qty: item.qty - 1 } : item
+        )
+        .filter((item) => item.qty > 0)
+    );
   };
-  
-
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, incrementQty, decrementQty, }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        incrementQty,
+        decrementQty,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

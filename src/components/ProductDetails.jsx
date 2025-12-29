@@ -1,10 +1,11 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { CartContext } from "./CartContext";
+import { useLocalStorage } from "../../useLocalStorage";
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState(null);
+  const [product, setProduct] = useLocalStorage("product",[]);
   const { addToCart } = useContext(CartContext);
 
   useEffect(() => {

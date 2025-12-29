@@ -1,33 +1,56 @@
-import React from "react";
+import { FaSearch, FaUser } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 import CartIcon from "./CartIcon";
+import { getUser, logoutUser } from "../utils/auth";
 
 const Header = ({ searchText, setSearchText }) => {
-  return (
-    <header className="p-4 shadow-xl bg-white">
-      <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row sm:items-center gap-4">
+  const user = getUser();
+  const navigate = useNavigate();
 
-        {/* Logo */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <img src="src/assets/images/store-logo.png" className="w-16" />
-          <span className="hidden sm:inline font-bold border-b-[3px]">Ratandan Jaipur, Rajasthan</span>
+  const handleLogout = () => {
+    logoutUser();
+    navigate("/login");
+  };
+
+  return (
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
+      <div className="max-w-[1200px] mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        
+        <Link to="/" className="text-2xl font-bold text-green-600">
+          ShopEase
+        </Link>
+
+        {/* SEARCH */}
+        <div className="flex-1 max-w-xl relative hidden md:block">
+          <FaSearch className="absolute top-1/2 left-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search products..."
+            className="w-full pl-12 pr-4 py-3 rounded-full border focus:ring-2 focus:ring-green-500"
+          />
         </div>
 
-        {/* Search */}
-        <input
-          type="search"
-          placeholder="Search..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-full sm:flex-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+        <CartIcon />
 
-        {/* Nav Items */}
-        <nav className="flex flex-wrap gap-3 sm:gap-5 font-semibold text-[18px] items-center">
-          <li className="list-none cursor-pointer hover:text-blue-500">Offers</li>
-          <li className="list-none cursor-pointer hover:text-blue-500">Discount</li>
-          <li className="list-none cursor-pointer hover:text-blue-500">Contact</li>
-          <CartIcon />
-        </nav>
+        {/* AUTH */}
+        {user ? (
+          <button
+            onClick={handleLogout}
+            className="hidden md:flex items-center gap-2 px-4 py-2 border rounded-full hover:bg-gray-50"
+          >
+            Logout
+          </button>
+        ) : (
+          <Link
+            to="/login"
+            className="hidden md:flex items-center gap-2 px-4 py-2 border rounded-full hover:bg-gray-50"
+          >
+            <FaUser />
+            Login
+          </Link>
+        )}
       </div>
     </header>
   );
